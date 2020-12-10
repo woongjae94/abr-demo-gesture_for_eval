@@ -121,14 +121,14 @@ class Gesture:
 
         # Swiping Right / Swiping Left / Sliding Two Fingers Right / Sliding Two Fingers Left / Thumb Up / Thumb Down
         # status : status, gesture, sl num // slide: image, action, sl name
-        if confidence > 0.6:
+        if confidence > 0.3:
             #requests.get('http://192.168.0.21:3001/api/v1/actions/action/{}/{}_{}_{}_{}_{}'.format('home', result, confidence, 'phue_lamp', 'controlA', 'controlB'))
             if result == "Doing other things":
                 #if top_3[0] == "Swiping Right" or top_3[0] == "Swiping Left" or top_3[0] == "Sliding Two Fingers Right" or top_3[0] == "Sliding Two Fingers Left" or top_3[0] == "Thumb Up":
                 if top_3[0] != "Doing other things":
                     result = top_3[0]
             
-            add_log([result, confidence, top_3])
+            add_log([result, confidence, top_3], tester_name)
             putText_on_status("Evaluation Proceeding", result, str(confidence))
 
 
@@ -188,8 +188,8 @@ class Gesture:
             #         putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
             #         #putText_on_slide(category[category_num][slide_num[category_num]], "Prev Category", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
-            else:
-                result = "Doing other things"
+            #else:
+            #    result = "Doing other things"
 
 
 if __name__ == '__main__':
