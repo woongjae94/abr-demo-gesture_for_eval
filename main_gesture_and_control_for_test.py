@@ -36,7 +36,7 @@ def new_status_canvas():
                 cv2.FONT_HERSHEY_SIMPLEX, 1, 0, 2, cv2.LINE_AA)
     cv2.putText(canvas, "GESTURE :", (10,80), \
                 cv2.FONT_HERSHEY_SIMPLEX, 1, 0, 2, cv2.LINE_AA)
-    cv2.putText(canvas, "SLIDE Num :", (10,120), \
+    cv2.putText(canvas, "CONFIDENCE :", (10,120), \
                 cv2.FONT_HERSHEY_SIMPLEX, 1, 0, 2, cv2.LINE_AA)
     return canvas
 
@@ -81,11 +81,11 @@ class Gesture:
         global slide_num
         global ex_mode
         global category_num
-        ex_mode = False
+        ex_mode = True
         category_num = 0
         slide_num = [0, 0, 0, 0, 0]
         putText_on_status("press ENTER to Start", "Wait for input", category_name[category_num] + " : " + str(slide_num[category_num]))
-        putText_on_slide(category[category_num][slide_num[category_num]], "Ready", category_name[category_num] + " _ " + str(slide_num[category_num]))
+        #putText_on_slide(category[category_num][slide_num[category_num]], "Ready", category_name[category_num] + " _ " + str(slide_num[category_num]))
         start = raw_input("----------- press ENTER key to start -----------")
         while True:
             self.run_demo()
@@ -98,7 +98,7 @@ class Gesture:
         global category_name
         confidence = 0.0
         if ex_mode :
-            putText_on_status("Recording...", result, str(slide_num[category_num]))
+            #putText_on_status("Recording...", result, str(slide_num[category_num]))
             print("mode True")
         else:
             putText_on_status("Wait for Thumb Up", "Computing...", str(slide_num[category_num]))
@@ -121,65 +121,72 @@ class Gesture:
 
         # Swiping Right / Swiping Left / Sliding Two Fingers Right / Sliding Two Fingers Left / Thumb Up / Thumb Down
         # status : status, gesture, sl num // slide: image, action, sl name
-        if confidence > 0.3:
+        if confidence > 0.6:
             #requests.get('http://192.168.0.21:3001/api/v1/actions/action/{}/{}_{}_{}_{}_{}'.format('home', result, confidence, 'phue_lamp', 'controlA', 'controlB'))
             if result == "Doing other things":
-                if top_3[0] == "Swiping Right" or top_3[0] == "Swiping Left" or top_3[0] == "Sliding Two Fingers Right" or top_3[0] == "Sliding Two Fingers Left" or top_3[0] == "Thumb Up":
-                    result = top_3[0] 
+                #if top_3[0] == "Swiping Right" or top_3[0] == "Swiping Left" or top_3[0] == "Sliding Two Fingers Right" or top_3[0] == "Sliding Two Fingers Left" or top_3[0] == "Thumb Up":
+                if top_3[0] != "Doing other things":
+                    result = top_3[0]
+            
+            add_log([result, confidence, top_3])
+            putText_on_status("Evaluation Proceeding", result, str(confidence))
 
-            if result == "Thumb Up":
-                if not ex_mode:
-                    ex_mode = True
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Demo Start", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Demo Start", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
-            elif result == "Thumb Down":
-                if ex_mode:
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Demo Finished", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Demo Finished", category_name[category_num] + " _ " + str(slide_num[category_num]))
-                    ex_mode = False
+            
 
-            elif result == "Swiping Right":
-                if ex_mode:
-                    slide_num[category_num] += 1
-                    if slide_num[category_num] == 7:
-                        slide_num[category_num] = 0
+            # if result == "Thumb Up":
+            #     if not ex_mode:
+            #         ex_mode = True
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Demo Start", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Demo Start", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Next Slide", category_name[category_num] + " _ " + str(slide_num[category_num]))
+            # elif result == "Thumb Down":
+            #     if ex_mode:
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Demo Finished", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Demo Finished", category_name[category_num] + " _ " + str(slide_num[category_num]))
+            #         ex_mode = True
 
-            elif result == "Swiping Left":
-                if ex_mode:
-                    slide_num[category_num] += -1
-                    if slide_num[category_num] == -1:
-                        slide_num[category_num] = 6
+            # elif result == "Swiping Right":
+            #     if ex_mode:
+            #         slide_num[category_num] += 1
+            #         if slide_num[category_num] == 7:
+            #             slide_num[category_num] = 0
 
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Prev Slide", category_name[category_num] + " _ " + str(slide_num[category_num]))
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Next Slide", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
-            elif result == "Sliding Two Fingers Right":
-                if ex_mode:
-                    category_num += 1
-                    if category_num == 5:
-                        category_num = 0
+            # elif result == "Swiping Left":
+            #     if ex_mode:
+            #         slide_num[category_num] += -1
+            #         if slide_num[category_num] == -1:
+            #             slide_num[category_num] = 6
 
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Next Category", category_name[category_num] + " _ " + str(slide_num[category_num]))
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Prev Slide", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
-            elif result == "Sliding Two Fingers Left":
-                if ex_mode:
-                    category_num += -1
-                    if category_num == -1:
-                        category_num = 4
+            # elif result == "Sliding Two Fingers Right":
+            #     if ex_mode:
+            #         category_num += 1
+            #         if category_num == 5:
+            #             category_num = 0
 
-                    add_log([result, confidence, top_3], tester_name)
-                    putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
-                    putText_on_slide(category[category_num][slide_num[category_num]], "Prev Category", category_name[category_num] + " _ " + str(slide_num[category_num]))
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Next Category", category_name[category_num] + " _ " + str(slide_num[category_num]))
+
+            # elif result == "Sliding Two Fingers Left":
+            #     if ex_mode:
+            #         category_num += -1
+            #         if category_num == -1:
+            #             category_num = 4
+
+            #         add_log([result, confidence, top_3], tester_name)
+            #         putText_on_status("Recognizing Gesture", result, str(slide_num[category_num]))
+            #         #putText_on_slide(category[category_num][slide_num[category_num]], "Prev Category", category_name[category_num] + " _ " + str(slide_num[category_num]))
 
             else:
                 result = "Doing other things"
